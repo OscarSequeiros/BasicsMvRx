@@ -1,25 +1,33 @@
 package com.example.basicsmvrx
 
 import android.os.Bundle
+import android.os.Parcelable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.airbnb.mvrx.BaseMvRxFragment
-import com.airbnb.mvrx.MvRxState
-import com.airbnb.mvrx.fragmentViewModel
-import com.airbnb.mvrx.withState
+import com.airbnb.mvrx.*
+import kotlinx.android.parcel.Parcelize
 import kotlinx.android.synthetic.main.fragment_main.*
 
-data class GrettingState(
+@Parcelize
+data class Value(
+    val number: Int,
+    val factor: Int
+) : Parcelable
+
+data class GreetingState(
     val title: String = "Meetup #",
-    val number: Int = 23
+    @PersistState val value: Value = Value(23, 3)
 ) : MvRxState {
-    val titleWithNumber = "$title$number"
+    val titleWithNumber = "$title${value.number}"
 }
 
-class GrettingViewModel(initialState: GrettingState) : MvRxViewModel<GrettingState>(initialState) {
+class GrettingViewModel(initialState: GreetingState) : MvRxViewModel<GreetingState>(initialState) {
 
-    fun incrementNumber() = setState { copy(number = number + 1) }
+    fun incrementNumber() = setState {
+        Log.e("TAG-Thread", Thread.currentThread().toString())
+        copy(value = value.copy(number = value.number + 1)) }
 }
 
 class MainFragment : BaseMvRxFragment() {
